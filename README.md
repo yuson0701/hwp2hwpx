@@ -1,6 +1,6 @@
 # hwp2hwpx
 
-## Compatibility fixes in this fork (1.0.1.post3)
+## Compatibility fixes in this fork (1.0.1.post4)
 
 This fork fixes corrupted images when HWP BinData records are out of storage-ID
 order. The bundled Java reader now matches compression flags by the actual
@@ -11,6 +11,10 @@ Nested tables are now converted with their parent context restored after each
 recursive conversion. Previously a later parent row could be appended to a
 nested child table, leaving both tables inconsistent. This fix is in the bundled
 Java converter, and preserves row ownership rather than changing declared counts.
+
+Paragraph conversion now restores the parent paragraph, run, and text-buffer
+state after recursively converting embedded content. This prevents an
+IndexOutOfBoundsException or skipped sibling objects after a nested table.
 
 The Python CLI/API also normalizes the Java output before publishing it:
 

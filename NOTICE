@@ -20,3 +20,6 @@ source and rebuild instructions are included in java/ and scripts/.
 
 This fork also modifies hwp2hwpx ForTable.java to preserve and restore
 conversion context during recursive nested-table conversion.
+
+This fork modifies hwp2hwpx ForChars.java to restore paragraph/run/text
+context after recursive embedded-content conversion.

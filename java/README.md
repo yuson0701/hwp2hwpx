@@ -24,7 +24,7 @@ python scripts/rebuild_java_patch.py
 ```
 
 The script compiles against the existing fat JAR with `--release 8` and replaces
-the vendored `HWPReader` and `ForTable` classes and their enum-switch companions.
+the vendored `HWPReader`, `ForTable`, and `ForChars` classes and their enum-switch companions.
 It needs no Maven, network access, or new runtime dependency. Normal users still
 need only a Java runtime. Different JDK compilers may produce different class
 bytes; the source, target level, and unchanged JAR entries are auditable.
@@ -57,3 +57,18 @@ is appended to the most recently converted child.
 Synthetic integration tests cover zero through three levels of nesting and
 check both row counts and the owning cells' text. With the previous JAR, depths
 2 and 3 fail; with the patch all four pass. No count rewriting is performed.
+
+## Recursive paragraph context fix (post4)
+
+`src/kr/dogfoot/hwp2hwpx/section/ForChars.java` comes from the Apache-2.0
+source at https://github.com/neolord0/hwp2hwpx/blob/main/src/main/java/kr/dogfoot/hwp2hwpx/section/ForChars.java.
+Its `convert` method now saves/restores paragraph, run, current text, and buffer
+state in a try/finally block. Shared sublist conversion can reenter this object.
+Previously a parent's next extended-control index was applied to a child's
+control list, causing an out-of-bounds exception or silently omitted objects.
+The fix does not skip unmatched controls or suppress exceptions.
+
+A synthetic paragraph containing two sibling nested tables with text between
+and after them checks both object preservation and text ownership. The old JAR
+emits two tables instead of three; the patched JAR retains all three. Nested
+row-ownership tests now also cover depths 4, 5, 8, 10, and 20.
