@@ -1,11 +1,23 @@
 # hwp2hwpx
 
-## Image-preservation fix in this fork
+## Compatibility fixes in this fork (1.0.1.post2)
 
 This fork fixes corrupted images when HWP BinData records are out of storage-ID
 order. The bundled Java reader now matches compression flags by the actual
 storage ID. Mixed compressed BMP and uncompressed PNG/JPEG data are preserved.
 See [the Java patch and regression tests](java/README.md).
+
+The Python CLI/API also normalizes the Java output before publishing it:
+
+- Remove cached `hp:linesegarray` data so Hangul recalculates line positions.
+  Stale caches caused macOS Hangul to reject a document as damaged or modified.
+- Repair the observed missing semicolon in `&quot` at an attribute boundary.
+- Parse every XML/HPF entry and reject remaining XML errors before replacing
+  the destination. Image bytes and other document content are preserved.
+
+Line and page breaks can change when Hangul recalculates the layout, especially
+with different installed fonts. These additional fixes run in the Python
+wrapper; invoking the bundled JAR directly does not apply them.
 
 Install this fork in your Python virtual environment:
 

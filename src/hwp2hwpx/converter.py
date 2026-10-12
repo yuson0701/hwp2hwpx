@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import os
 import platform
+import re
+import xml.etree.ElementTree as ET
 import shutil
 import subprocess
 import tempfile
@@ -78,6 +80,41 @@ def _process_detail(result: subprocess.CompletedProcess[str]) -> str:
 def _validate_hwpx(path: Path) -> None:
     if not zipfile.is_zipfile(path):
         raise RuntimeError("Conversion failed: output is not a valid HWPX/ZIP file")
+
+
+def _normalize_hwpx(path: Path) -> None:
+    """Repair known Java XML output defects and discard stale line caches.
+
+    Keep XML bytes intact except for the targeted edits: reserializing XML
+    could change namespace prefixes used by Hancom's compatibility switches.
+    """
+    _validate_hwpx(path)
+    normalized = path.with_suffix(".normalized.hwpx")
+    try:
+        with zipfile.ZipFile(path) as source, zipfile.ZipFile(normalized, "w") as target:
+            target.comment = source.comment
+            for info in source.infolist():
+                data = source.read(info.filename)
+                if info.filename.endswith((".xml", ".hpf")):
+                    # The bundled writer omits ';' when escaping a double quote.
+                    # Do not change literal '&amp;quot' or already valid '&quot;'.
+                    data = re.sub(rb'&quot(?=["\'])', b'&quot;', data)
+                    if re.fullmatch(r"Contents/section[0-9]+\.xml", info.filename):
+                        data = re.sub(
+                            rb"<hp:linesegarray\b[^>]*(?:/>|>.*?</hp:linesegarray\s*>)",
+                            b"", data, flags=re.DOTALL,
+                        )
+                    try:
+                        ET.fromstring(data)
+                    except ET.ParseError as exc:
+                        raise RuntimeError(
+                            f"Conversion failed: invalid XML in {info.filename}: {exc}"
+                        ) from exc
+                target.writestr(info, data)
+        normalized.replace(path)
+    finally:
+        if normalized.exists():
+            normalized.unlink()
 
 
 def _find_java() -> Optional[str]:
@@ -235,7 +272,7 @@ def convert(
             detail = _process_detail(result)
             raise RuntimeError(f"Conversion failed: {detail}")
 
-        _validate_hwpx(tmp_out)
+        _normalize_hwpx(tmp_out)
 
         output_path.parent.mkdir(parents=True, exist_ok=True)
         shutil.move(str(tmp_out), str(output_path))
