@@ -123,7 +123,8 @@ public class ForChars extends Converter {
     }
 
     private boolean isNextRun(long charPosition) {
-        long nextStartPosition = (runIndex + 1 < runCount) ? hwpPara.getCharShape().getPositonShapeIdPairList().get(runIndex + 1).getPosition() : 0xffff;
+        if (runIndex + 1 >= runCount) return false;
+        long nextStartPosition = hwpPara.getCharShape().getPositonShapeIdPairList().get(runIndex + 1).getPosition();
         return charPosition >= nextStartPosition;
     }
 

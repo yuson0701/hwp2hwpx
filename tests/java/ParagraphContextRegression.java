@@ -11,8 +11,11 @@ public class ParagraphContextRegression {
             h.getBodyText().getSectionList().get(0).getParagraph(0), 3, 100, 1);
         Paragraph p = outer.getRowList().get(0).getCellList().get(0)
             .getParagraphList().getParagraph(0);
-        p.getText().addString("BETWEEN_TABLES");
-        NestedTableRegression.table(p, 1, 200, 0);
+        int siblings = args.length > 1 ? Integer.parseInt(args[1]) : 2;
+        for (int i = 1; i < siblings; i++) {
+            p.getText().addString("BETWEEN_TABLES_" + i);
+            NestedTableRegression.table(p, 1, 200 + i - 1, 0);
+        }
         p.getText().addString("AFTER_TABLES");
         HWPWriter.toFile(h, args[0]);
     }

@@ -23,3 +23,7 @@ conversion context during recursive nested-table conversion.
 
 This fork modifies hwp2hwpx ForChars.java to restore paragraph/run/text
 context after recursive embedded-content conversion.
+
+This fork modifies hwpxlib 1.0.8 XMLStringBuilder.java and SubListWriter.java
+to escape XML attributes exactly once and preserve attribute whitespace.
+ForChars.java also checks actual run bounds for long paragraphs.

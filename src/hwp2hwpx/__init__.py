@@ -18,7 +18,7 @@ CLI::
 
 from __future__ import annotations
 
-__version__ = "1.0.1.post4"
+__version__ = "1.0.1.post5"
 
 from .converter import convert, convert_batch, check_java
 

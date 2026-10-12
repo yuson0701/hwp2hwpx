@@ -36,7 +36,8 @@ def test_nested_rows_stay_with_their_parent(tmp_path, depth):
             assert f'table-{100 + level}-row-{index}' in text
 
 
-def test_sibling_tables_and_parent_text_survive_recursion(tmp_path):
+@pytest.mark.parametrize('siblings', [2, 3, 5, 10])
+def test_sibling_tables_and_parent_text_survive_recursion(tmp_path, siblings):
     if not shutil.which('javac') or not shutil.which('java'):
         pytest.skip('JDK required')
     jar = _jar_path()
@@ -46,18 +47,20 @@ def test_sibling_tables_and_parent_text_survive_recursion(tmp_path):
                     str(fixtures / 'ParagraphContextRegression.java')], check=True)
     source = tmp_path / 'siblings.hwp'
     subprocess.run(['java', '-cp', os.pathsep.join([str(tmp_path), str(jar)]),
-                    'ParagraphContextRegression', str(source)], check=True)
+                    'ParagraphContextRegression', str(source), str(siblings)], check=True)
     with ZipFile(convert(source)) as z:
         root = ET.fromstring(z.read('Contents/section0.xml'))
     tables = list(root.iter('{http://www.hancom.co.kr/hwpml/2011/paragraph}tbl'))
-    assert len(tables) == 3
+    assert len(tables) == siblings + 1
     parent = tables[0].find('{*}tr/{*}tc/{*}subList/{*}p')
     children = parent.findall('{*}run/{*}tbl')
-    assert len(children) == 2
-    assert [int(t.get('rowCnt')) for t in children] == [2, 1]
+    assert len(children) == siblings
+    assert [int(t.get('rowCnt')) for t in children] == [2] + [1] * (siblings - 1)
     text = ''.join(t.text or '' for t in parent.findall('{*}run/{*}t'))
     assert 'BETWEEN_TABLES' in text and 'AFTER_TABLES' in text
-    assert 'table-200-row-0' in ''.join(children[1].itertext())
+    for i in range(1, siblings):
+        assert f'BETWEEN_TABLES_{i}' in text
+        assert f'table-{199+i}-row-0' in ''.join(children[i].itertext())
     for child in children:
         assert 'BETWEEN_TABLES' not in ''.join(child.itertext())
         assert 'AFTER_TABLES' not in ''.join(child.itertext())

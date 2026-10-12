@@ -72,3 +72,19 @@ A synthetic paragraph containing two sibling nested tables with text between
 and after them checks both object preservation and text ownership. The old JAR
 emits two tables instead of three; the patched JAR retains all three. Nested
 row-ownership tests now also cover depths 4, 5, 8, 10, and 20.
+
+## XML attribute and long-paragraph fixes (post5)
+
+XMLStringBuilder.java and SubListWriter.java are from Apache-2.0 licensed
+hwpxlib 1.0.8 sources:
+https://repo.maven.apache.org/maven2/kr/dogfoot/hwpxlib/1.0.8/hwpxlib-1.0.8-sources.jar
+
+String attributes now escape ampersands, quotes and angle brackets, with
+numeric references for tabs/CR/LF to preserve attribute values during parsing.
+SubListWriter passes raw metadata to avoid double escaping. Text escaping is
+unchanged. ForChars checks whether the next run exists instead of treating
+0xffff as an artificial boundary. Tests cover 100,000-character paragraphs.
+
+Real HWP fixtures exercise quoted font names, literal entity text, whitespace,
+non-BMP characters and stale line caches. A writer-level test checks cell
+metadata round trips. Previously expected failures are now required to pass.

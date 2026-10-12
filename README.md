@@ -1,6 +1,11 @@
 # hwp2hwpx
 
-## Compatibility fixes in this fork (1.0.1.post4)
+## Compatibility fixes in this fork (1.0.1.post5)
+
+- Escape XML attribute values safely, including quoted font names and literal entities.
+- Preserve cell metadata without double escaping.
+- Convert long single paragraphs without a false 65,535-position run boundary.
+
 
 This fork fixes corrupted images when HWP BinData records are out of storage-ID
 order. The bundled Java reader now matches compression flags by the actual
