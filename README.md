@@ -1,5 +1,23 @@
 # hwp2hwpx
 
+## Image-preservation fix in this fork
+
+This fork fixes corrupted images when HWP BinData records are out of storage-ID
+order. The bundled Java reader now matches compression flags by the actual
+storage ID. Mixed compressed BMP and uncompressed PNG/JPEG data are preserved.
+See [the Java patch and regression tests](java/README.md).
+
+Install this fork in your Python virtual environment:
+
+```sh
+python -m pip install --upgrade "git+https://github.com/yuson0701/hwp2hwpx.git"
+```
+
+The CLI and Python API are unchanged. Java is still required. This fixes the
+identified image-compression bug; it does not guarantee identical page layout
+for every HWP document.
+
+
 [![CI](https://github.com/kossembly-dot/hwp2hwpx/actions/workflows/ci.yml/badge.svg)](https://github.com/kossembly-dot/hwp2hwpx/actions/workflows/ci.yml)
 [![PyPI](https://img.shields.io/pypi/v/hwp2hwpx)](https://pypi.org/project/hwp2hwpx/)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)

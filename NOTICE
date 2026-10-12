@@ -13,3 +13,7 @@ pip installation and adds a CLI interface.
 
 This product references publicly available HWP/HWPX file format
 specifications published by Hancom Inc. (https://www.hancom.com).
+
+This fork modifies hwplib 1.1.10 HWPReader.java to resolve BinData
+compression by storage ID instead of DocInfo list position. The modified
+source and rebuild instructions are included in java/ and scripts/.

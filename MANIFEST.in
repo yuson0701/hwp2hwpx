@@ -1,0 +1,3 @@
+recursive-include java *.java *.md
+include scripts/rebuild_java_patch.py
+recursive-include tests *.py *.java

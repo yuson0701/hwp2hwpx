@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "hwp2hwpx"
-version = "1.0.1"
+version = "1.0.1.post1"
 description = "Convert HWP (Hangul Word Processor) files to HWPX format"
 readme = "README.md"
 license = { text = "Apache-2.0" }
