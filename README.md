@@ -1,11 +1,16 @@
 # hwp2hwpx
 
-## Compatibility fixes in this fork (1.0.1.post2)
+## Compatibility fixes in this fork (1.0.1.post3)
 
 This fork fixes corrupted images when HWP BinData records are out of storage-ID
 order. The bundled Java reader now matches compression flags by the actual
 storage ID. Mixed compressed BMP and uncompressed PNG/JPEG data are preserved.
 See [the Java patch and regression tests](java/README.md).
+
+Nested tables are now converted with their parent context restored after each
+recursive conversion. Previously a later parent row could be appended to a
+nested child table, leaving both tables inconsistent. This fix is in the bundled
+Java converter, and preserves row ownership rather than changing declared counts.
 
 The Python CLI/API also normalizes the Java output before publishing it:
 

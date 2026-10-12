@@ -24,7 +24,7 @@ python scripts/rebuild_java_patch.py
 ```
 
 The script compiles against the existing fat JAR with `--release 8` and replaces
-only `HWPReader.class` and its compiler-generated enum-switch companion.
+the vendored `HWPReader` and `ForTable` classes and their enum-switch companions.
 It needs no Maven, network access, or new runtime dependency. Normal users still
 need only a Java runtime. Different JDK compilers may produce different class
 bytes; the source, target level, and unchanged JAR entries are auditable.
@@ -43,3 +43,17 @@ and then the public Python conversion API, asserting exact PNG bytes in HWPX.
 They load the actual bundled JAR and run on Linux, Windows, and macOS in CI.
 No private/user documents are included. Java integration tests skip locally if
 no JDK is available; CI installs one explicitly.
+
+## Nested-table context fix (post3)
+
+`src/kr/dogfoot/hwp2hwpx/section/object/ForTable.java` is from
+https://github.com/neolord0/hwp2hwpx/blob/main/src/main/java/kr/dogfoot/hwp2hwpx/section/object/ForTable.java
+(Apache-2.0). Its conversion logic matches the previously bundled class.
+The modification saves `table` and `hwpTable` on entry and restores them in a
+`finally` block. `trs()` calls the cell converter, which can recursively invoke
+the same converter for nested tables. Without restoration, the next parent row
+is appended to the most recently converted child.
+
+Synthetic integration tests cover zero through three levels of nesting and
+check both row counts and the owning cells' text. With the previous JAR, depths
+2 and 3 fail; with the patch all four pass. No count rewriting is performed.
